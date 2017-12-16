@@ -13,7 +13,6 @@ namespace Extreme_DI.Services
         public StudentRepository(StudentContext context)
         {
             this.context = context;
-            this.context.Database.EnsureCreated();
         }
 
         public List<StudentModel> GetStudents()

@@ -12,23 +12,25 @@ namespace Extreme_DI.Controllers
 {
     public class StudentController : Controller
     {
-        private IStudentRepository studentRepository { get; set; }
+        private StudentContext context { get; set; }
 
-        public StudentController(IStudentRepository studentRepository)
+        public StudentController(StudentContext context)
         {
-            this.studentRepository = studentRepository;
-            //studentRepository.AddStudent(new StudentModel {Course = 4, Group = "FIIT", Name = "Evgeny", Surname = "Petrosyan", StudentID = 1});
+            this.context = context;
+            this.context.Database.EnsureCreated();
+            //context.AddStudent(new StudentModel { Course = 4, Group = "FIIT", Name = "Evgeny", Surname = "Petrosyan", StudentID = 1 });
+            //context.AddStudent(new StudentModel { Course = 4, Group = "KNKN", Name = "Leha", Surname = "Sisyan", StudentID = 2 });
         }
 
         public IActionResult All()
         {
-            return View(studentRepository.GetStudents());
+            return View(context.GetStudents());
         }
 
         [HttpGet]
-        public IActionResult Profile(int studentID, [FromServices]IStudentRepository studentRepository)
+        public IActionResult Profile(int studentID)
         {
-            var student = studentRepository.GetStudentModel(studentID);
+            var student = context.GetStudentModel(studentID);
             if (student != null)
                 return View(student);
 
@@ -38,8 +40,7 @@ namespace Extreme_DI.Controllers
         [HttpGet]
         public IActionResult Edit(int studentID)
         {
-            var studentRepository = HttpContext.RequestServices.GetService<IStudentRepository>();
-            return View(studentRepository.GetStudentModel(studentID));
+            return View(context.GetStudentModel(studentID));
         }
 
         [HttpPost]
@@ -47,7 +48,7 @@ namespace Extreme_DI.Controllers
         {
             if (ModelState.IsValid)
             {
-                studentRepository.UpdateStudent(student);
+                context.UpdateStudent(student);
                 return RedirectToAction("Profile", new { studentID = student.StudentID });
             }
 
@@ -57,10 +58,9 @@ namespace Extreme_DI.Controllers
         [HttpPost]
         public IActionResult Create([FromBody]StudentModel student)
         {
-            var studentRepository = ActivatorUtilities.CreateInstance<StudentRepository>(HttpContext.RequestServices);
             if (ModelState.IsValid)
             {
-                studentRepository.AddStudent(student);
+                context.AddStudent(student);
                 return RedirectToAction("All");
             }
 
@@ -70,7 +70,7 @@ namespace Extreme_DI.Controllers
         [HttpDelete]
         public IActionResult Delete(int studentID)
         {
-            if (studentRepository.DeleteStudent(studentID))
+            if (context.DeleteStudent(studentID))
             { 
                 return RedirectToAction("All");
             }

@@ -19,5 +19,41 @@ namespace Extreme_DI.Models
         {
             modelBuilder.Entity<StudentModel>().HasKey(x => x.StudentID); ;
         }
+
+        public List<StudentModel> GetStudents()
+        {
+            return Students.ToList();
+        }
+
+        public StudentModel GetStudentModel(int studentID)
+        {
+            return Students.FirstOrDefault(x =>
+                x.StudentID == studentID);
+        }
+
+        public void UpdateStudent(StudentModel student)
+        {
+            Students.Update(student);
+            SaveChanges();
+        }
+
+        public void AddStudent(StudentModel student)
+        {
+            Students.Add(student);
+            SaveChanges();
+        }
+
+        public bool DeleteStudent(int studentID)
+        {
+            var student = Students.FirstOrDefault(x => x.StudentID == studentID);
+            if (student != null)
+            {
+                Students.Remove(student);
+                SaveChanges();
+                return true;
+            }
+
+            return false;
+        }
     }
 }
